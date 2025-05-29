@@ -39,3 +39,17 @@ export const loginUser = async (email, password) => {
     accountId: selectedAccount.id,
   };
 };
+
+export const logoutUser = async () => {
+  const response = await fetch('https://estagio.almt.app/logout', {
+    method: 'GET',
+    credentials: 'include',
+  })
+
+  if (!response.ok) {
+    throw new Error('Erro ao fazer logout.')
+  }
+
+  localStorage.removeItem('user')
+  localStorage.removeItem('accountId')
+}

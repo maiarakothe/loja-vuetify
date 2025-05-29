@@ -10,8 +10,8 @@
     >
       <v-list-item
         class="mt-4"
-        prepend-avatar="https://github.com/maiarakothe.png"
-        title="User"
+        :prepend-avatar="userAvatar"
+        :title="userName"
       />
 
       <v-list dense nav>
@@ -27,7 +27,7 @@
 
       <template #append>
         <div class="pa-2">
-          <v-btn block variant="tonal">Logout</v-btn>
+          <v-btn block variant="tonal" @click="logout">Logout</v-btn>
         </div>
       </template>
     </v-navigation-drawer>
@@ -35,6 +35,7 @@
     <v-main style="overflow-y: auto; max-height: 100vh;">
       <v-app-bar app class="bg-deep-purple" flat theme="dark">
         <v-app-bar-nav-icon v-if="!isDesktop" @click="drawer = !drawer" />
+        <v-toolbar-title v-if="route.path === '/profile'" class="text-center font-weight-bold ">Conta</v-toolbar-title>
       </v-app-bar>
 
       <slot />
@@ -43,12 +44,38 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { onMounted, ref } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
   import { useDisplay } from 'vuetify'
+  import { logoutUser } from '@/api/api_login.js'
 
   const drawer = ref(true)
   const { lgAndUp } = useDisplay()
   const isDesktop = lgAndUp
+
+  const router = useRouter()
+  const route = useRoute()
+
+  const userName = ref('User')
+  const userAvatar = ref('https://github.com/maiarakothe.png')
+
+  onMounted(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      const user = JSON.parse(userData)
+      userName.value = user.name || 'User'
+      if (user.avatar) userAvatar.value = user.avatar
+    }
+  })
+
+  const logout = async () => {
+    try {
+      await logoutUser()
+      router.push('/')
+    } catch (error) {
+      alert('Erro ao fazer logout: ' + error.message)
+    }
+  }
 
   const menuItems = [
     { title: 'Home', icon: 'mdi-home', to: '/HomePage' },

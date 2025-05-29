@@ -1,10 +1,10 @@
 <template>
   <SideMenu>
     <h1 class="mb-6">Bem-vindo à Loja de Roupas</h1>
-    <v-btn color="primary" large @click="goToProducts">
+    <v-btn class="bg-deep-purple" large @click="goToProducts">
       Gerenciar Produtos
     </v-btn>
-    </SideMenu>
+  </SideMenu>
 </template>
 
 <script setup>

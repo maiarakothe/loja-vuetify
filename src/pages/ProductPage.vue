@@ -198,6 +198,9 @@
   }
 
   async function deleteProductById (id) {
+    const confirmDelete = window.confirm('Tem certeza que deseja excluir este produto?')
+    if (!confirmDelete) return
+
     try {
       const accountId = localStorage.getItem('accountId')
       if (!accountId) {
