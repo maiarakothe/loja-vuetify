@@ -22,7 +22,7 @@ export const createProduct = async (name, category_type, quantity, value, url, a
   }
 };
 
-export const getAllProducts = async (accountId) => {
+export const getAllProducts = async accountId => {
   const response = await fetch(`${BASE_URL}/products?account_id=${accountId}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },

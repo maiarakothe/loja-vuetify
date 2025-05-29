@@ -1,87 +1,100 @@
 <template>
-  <v-container>
-    <v-row align="center" class="mb-4" justify="space-between">
-      <v-col>
-        <h2>Gerenciamento de Produtos</h2>
-      </v-col>
-      <v-col cols="auto">
-        <v-btn color="primary" @click="openDialog()">Adicionar Produto</v-btn>
-      </v-col>
-    </v-row>
+  <SideMenu>
+    <v-container>
+      <v-row align="center" class="mb-4" justify="space-between">
+        <v-col>
+          <h2>Gerenciamento de Produtos</h2>
+        </v-col>
+        <v-col cols="auto">
+          <v-btn class="bg-deep-purple" @click="openDialog()">Adicionar Produto</v-btn>
+        </v-col>
+      </v-row>
 
-    <v-data-table
-      class="elevation-1"
-      :headers="tableHeaders"
-      item-key="id"
-      :items="productList"
-    >
-      <template #item.url="{ item }">
-        <v-img contain max-height="80" max-width="100" :src="item.url" />
-      </template>
-      <template #item.acoes="{ item }">
-        <v-btn icon="$edit" variant="text" @click="openDialog(item)">
-        </v-btn>
-        <v-btn icon="$delete" variant="text" @click="deleteProductById(item.id)">
-        </v-btn>
-      </template>
-    </v-data-table>
+      <v-data-table
+        class="elevation-1"
+        :headers="tableHeaders"
+        item-key="id"
+        :items="productList"
+      >
+        <template #headers>
+          <tr>
+            <th>Nome</th>
+            <th>Preço</th>
+            <th>Categoria</th>
+            <th>Quantidade</th>
+            <th>Imagem</th>
+            <th>Ações</th>
+          </tr>
+        </template>
 
-    <v-dialog v-model="isDialogOpen" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="text-h6">{{ isEditing ? 'Editar Produto' : 'Adicionar Produto' }}</span>
-        </v-card-title>
+        <template #item.url="{ item }">
+          <v-img contain max-height="80" max-width="100" :src="item.url" />
+        </template>
+        <template #item.acoes="{ item }">
+          <v-btn icon="$edit" variant="text" @click="openDialog(item)">
+          </v-btn>
+          <v-btn icon="$delete" variant="text" @click="deleteProductById(item.id)">
+          </v-btn>
+        </template>
+      </v-data-table>
 
-        <v-card-text>
-          <v-form ref="productFormRef" @submit.prevent="saveProduct">
-            <v-text-field
-              v-model="productName"
-              label="Nome"
-              variant="outlined"
-            />
-            <v-text-field
-              v-model="productPrice"
-              label="Preço"
-              prefix="R$"
-              step="0.01"
-              type="number"
-              variant="outlined"
-            />
-            <v-select
-              v-model="productCategory"
-              chips
-              :items="['Vestido', 'Calça', 'Camiseta']"
-              label="Categoria"
-              variant="outlined"
-            />
-            <v-text-field
-              v-model="productQuantity"
-              label="Quantidade"
-              type="number"
-              variant="outlined"
-            />
-            <v-text-field
-              v-model="productUrl"
-              hint="Exemplo: https://exemplo.com/imagem.jpg"
-              label="URL da Imagem"
-              type="url"
-              variant="outlined"
-            />
-          </v-form>
-        </v-card-text>
+      <v-dialog v-model="isDialogOpen" max-width="500px">
+        <v-card>
+          <v-card-title>
+            <span class="text-h6">{{ isEditing ? 'Editar Produto' : 'Adicionar Produto' }}</span>
+          </v-card-title>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn text @click="closeDialog">Cancelar</v-btn>
-          <v-btn color="primary" @click="saveProduct">Salvar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+          <v-card-text>
+            <v-form ref="productFormRef" @submit.prevent="saveProduct">
+              <v-text-field
+                v-model="productName"
+                label="Nome"
+                variant="outlined"
+              />
+              <v-text-field
+                v-model="productPrice"
+                label="Preço"
+                prefix="R$"
+                step="0.01"
+                type="number"
+                variant="outlined"
+              />
+              <v-select
+                v-model="productCategory"
+                chips
+                :items="['Vestido', 'Calça', 'Camiseta']"
+                label="Categoria"
+                variant="outlined"
+              />
+              <v-text-field
+                v-model="productQuantity"
+                label="Quantidade"
+                type="number"
+                variant="outlined"
+              />
+              <v-text-field
+                v-model="productUrl"
+                hint="Exemplo: https://exemplo.com/imagem.jpg"
+                label="URL da Imagem"
+                type="url"
+                variant="outlined"
+              />
+            </v-form>
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text @click="closeDialog">Cancelar</v-btn>
+            <v-btn color="primary" @click="saveProduct">Salvar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-container>
+  </SideMenu>
 </template>
 
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { onMounted, ref } from 'vue'
   import { createProduct, deleteProduct, getAllProducts, updateProduct } from '@/api/api_product.js'
 
   const productList = ref([])
