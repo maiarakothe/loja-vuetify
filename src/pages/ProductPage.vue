@@ -3,7 +3,16 @@
     <v-container>
       <v-row align="center" class="mb-4" justify="space-between">
         <v-col>
-          <h2>Gerenciamento de Produtos</h2>
+          <v-text-field
+            v-model="searchQuery"
+            append-inner-icon="mdi-magnify"
+            density="compact"
+            hide-details
+            label="Pesquisar produto"
+            :loading="loading"
+            single-line
+            variant="solo"
+          />
         </v-col>
         <v-col cols="auto">
           <v-btn class="bg-deep-purple" @click="openDialog()">Adicionar Produto</v-btn>
@@ -14,7 +23,7 @@
         class="elevation-1"
         :headers="tableHeaders"
         item-key="id"
-        :items="productList"
+        :items="filteredProducts"
       >
         <template #headers>
           <tr>
@@ -96,6 +105,7 @@
 <script setup>
   import { onMounted, ref } from 'vue'
   import { createProduct, deleteProduct, getAllProducts, updateProduct } from '@/api/api_product.js'
+  import { computed } from 'vue'
 
   const productList = ref([])
   const isDialogOpen = ref(false)
@@ -107,6 +117,8 @@
   const productCategory = ref('')
   const productQuantity = ref(0)
   const productUrl = ref('')
+  const searchQuery = ref('')
+
 
   const productFormRef = ref(null)
 
@@ -118,6 +130,13 @@
     { text: 'Imagem', value: 'url' },
     { text: 'Ações', value: 'acoes', sortable: false },
   ]
+
+  const filteredProducts = computed(() => {
+    if (!searchQuery.value) return productList.value
+    return productList.value.filter(product =>
+      product.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+  })
 
   function openDialog (product = null) {
     if (product) {

@@ -1,15 +1,20 @@
 <template>
   <SideMenu>
     <div class="profile-container">
-      <v-avatar class="mb-4" size="120">
+      <div v-if="user.name === 'Maiara'" class="image-wrapper">
         <img
           alt="Avatar"
+          class="avatar-image"
           :src="user.avatar || defaultAvatar"
-          style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"
         >
-      </v-avatar>
+      </div>
+
+      <v-icon v-else color="gray" size="150">mdi-account-circle</v-icon>
+
       <h2>{{ user.name || 'Usuário' }}</h2>
       <p class="email">{{ user.email }}</p>
+
+      <v-btn>Editar perfil</v-btn>
     </div>
   </SideMenu>
 </template>
@@ -40,6 +45,20 @@
   align-items: center;
   margin-top: 40px;
   text-align: center;
+}
+
+.image-wrapper {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .email {

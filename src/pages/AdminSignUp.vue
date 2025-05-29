@@ -1,6 +1,6 @@
 <template>
   <v-container
-    class="fill-height d-flex align-center justify-center"
+    class="fill-height d-flex align-center justify-center bg-deep-purple"
     style="max-width: 100%;"
   >
     <v-card
@@ -37,10 +37,10 @@
             @click:append-inner="toggleVisibility"
           />
           <div class="d-flex flex-column align-center mt-4">
-            <v-btn class="mb-2" color="primary" style="width: 150px;" type="submit">
+            <v-btn class="mb-2 bg-deep-purple" style="width: 150px;" type="submit">
               Cadastrar-se
             </v-btn>
-            <v-btn variant="text" @click="goToLogin">
+            <v-btn color="deep-purple" variant="text" @click="goToLogin">
               Login
             </v-btn>
           </div>
