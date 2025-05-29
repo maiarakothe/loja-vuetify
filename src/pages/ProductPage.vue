@@ -1,4 +1,3 @@
-
 <template>
   <v-container>
     <v-row align="center" class="mb-4" justify="space-between">
@@ -6,72 +5,75 @@
         <h2>Gerenciamento de Produtos</h2>
       </v-col>
       <v-col cols="auto">
-        <v-btn color="primary" @click="abrirDialog()">Adicionar Produto</v-btn>
+        <v-btn color="primary" @click="openDialog()">Adicionar Produto</v-btn>
       </v-col>
     </v-row>
 
     <v-data-table
       class="elevation-1"
-      :headers="headers"
+      :headers="tableHeaders"
       item-key="id"
-      :items="produtos"
+      :items="productList"
     >
-      <template #item.imagem="{ item }">
-        <v-img contain max-height="80" max-width="100" :src="item.imagem" />
+      <template #item.url="{ item }">
+        <v-img contain max-height="80" max-width="100" :src="item.url" />
       </template>
       <template #item.acoes="{ item }">
-        <v-btn icon="$edit" variant="text" @click="abrirDialog(item)">
+        <v-btn icon="$edit" variant="text" @click="openDialog(item)">
         </v-btn>
-        <v-btn icon="$delete" variant="text" @click="excluirProduto(item.id)">
+        <v-btn icon="$delete" variant="text" @click="deleteProductById(item.id)">
         </v-btn>
       </template>
-
-
     </v-data-table>
 
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-dialog v-model="isDialogOpen" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="text-h6">{{ editando ? 'Editar Produto' : 'Adicionar Produto' }}</span>
+          <span class="text-h6">{{ isEditing ? 'Editar Produto' : 'Adicionar Produto' }}</span>
         </v-card-title>
 
         <v-card-text>
-          <v-form ref="formProduto" @submit.prevent="salvarProduto">
+          <v-form ref="productFormRef" @submit.prevent="saveProduct">
             <v-text-field
-              v-model="form.nome"
+              v-model="productName"
               label="Nome"
               variant="outlined"
             />
             <v-text-field
-              v-model="form.preco"
+              v-model="productPrice"
               label="Preço"
+              prefix="R$"
+              step="0.01"
               type="number"
               variant="outlined"
-              min="0"
-              step="0.01"
-              prefix="R$"
+            />
+            <v-select
+              v-model="productCategory"
+              chips
+              :items="['Vestido', 'Calça', 'Camiseta']"
+              label="Categoria"
+              variant="outlined"
             />
             <v-text-field
-              v-model="form.preco"
+              v-model="productQuantity"
               label="Quantidade"
               type="number"
               variant="outlined"
-              min="0"
             />
             <v-text-field
-              v-model="form.imagem"
+              v-model="productUrl"
+              hint="Exemplo: https://exemplo.com/imagem.jpg"
               label="URL da Imagem"
               type="url"
               variant="outlined"
-              hint="Exemplo: https://exemplo.com/imagem.jpg"
             />
           </v-form>
         </v-card-text>
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="fecharDialog">Cancelar</v-btn>
-          <v-btn color="primary" @click="salvarProduto">Salvar</v-btn>
+          <v-btn text @click="closeDialog">Cancelar</v-btn>
+          <v-btn color="primary" @click="saveProduct">Salvar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -79,4 +81,125 @@
 </template>
 
 <script setup>
+  import { ref, onMounted } from 'vue'
+  import { createProduct, deleteProduct, getAllProducts, updateProduct } from '@/api/api_product.js'
+
+  const productList = ref([])
+  const isDialogOpen = ref(false)
+  const isEditing = ref(false)
+  const editingProductId = ref(null)
+
+  const productName = ref('')
+  const productPrice = ref(0)
+  const productCategory = ref('')
+  const productQuantity = ref(0)
+  const productUrl = ref('')
+
+  const productFormRef = ref(null)
+
+  const tableHeaders = [
+    { text: 'Nome', value: 'name' },
+    { text: 'Preço', value: 'value' },
+    { text: 'Categoria', value: 'category_type' },
+    { text: 'Quantidade', value: 'quantity' },
+    { text: 'Imagem', value: 'url' },
+    { text: 'Ações', value: 'acoes', sortable: false },
+  ]
+
+  function openDialog (product = null) {
+    if (product) {
+      isEditing.value = true
+      editingProductId.value = product.id
+      productName.value = product.name
+      productPrice.value = product.value
+      productCategory.value = product.category_type
+      productQuantity.value = product.quantity
+      productUrl.value = product.url
+    } else {
+      isEditing.value = false
+      editingProductId.value = null
+      productName.value = ''
+      productPrice.value = 0
+      productCategory.value = ''
+      productQuantity.value = 0
+      productUrl.value = ''
+    }
+    isDialogOpen.value = true
+  }
+
+  function closeDialog () {
+    isDialogOpen.value = false
+  }
+
+  async function loadProducts () {
+    try {
+      const accountId = localStorage.getItem('accountId')
+      if (!accountId) {
+        alert('Conta não encontrada. Faça login novamente.')
+        return
+      }
+      productList.value = await getAllProducts(Number(accountId))
+    } catch (error) {
+      alert('Erro ao carregar produtos: ' + error.message)
+    }
+  }
+
+  async function saveProduct () {
+    if (!productFormRef.value.validate()) return
+
+    try {
+      const accountId = localStorage.getItem('accountId')
+      if (!accountId) {
+        alert('Conta não encontrada. Faça login novamente.')
+        return
+      }
+
+      if (isEditing.value && editingProductId.value !== null) {
+        await updateProduct(
+          editingProductId.value,
+          productName.value,
+          productCategory.value,
+          productQuantity.value,
+          productPrice.value,
+          productUrl.value,
+          Number(accountId)
+        )
+        await loadProducts()
+        closeDialog()
+        return
+      }
+
+      await createProduct(
+        productName.value,
+        productCategory.value,
+        productQuantity.value,
+        productPrice.value,
+        productUrl.value,
+        Number(accountId)
+      )
+      await loadProducts()
+      closeDialog()
+    } catch (error) {
+      alert('Erro ao salvar produto: ' + error.message)
+    }
+  }
+
+  async function deleteProductById (id) {
+    try {
+      const accountId = localStorage.getItem('accountId')
+      if (!accountId) {
+        alert('Conta não encontrada. Faça login novamente.')
+        return
+      }
+      await deleteProduct(id, Number(accountId))
+      await loadProducts()
+    } catch (error) {
+      alert('Erro ao excluir produto: ' + error.message)
+    }
+  }
+
+  onMounted(() => {
+    loadProducts()
+  })
+
 </script>

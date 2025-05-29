@@ -64,8 +64,9 @@
       return;
     }
     try {
-      const user = await loginUser(email.value, password.value)
+      const { user, accountId } = await loginUser(email.value, password.value)
       localStorage.setItem('user', JSON.stringify(user))
+      localStorage.setItem('accountId', accountId)
       router.push('/homePage')
     } catch (error) {
       if (error.status === 401) {
