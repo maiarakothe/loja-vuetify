@@ -28,15 +28,21 @@
         <v-card-text>
           <v-text-field
             v-model="oldPassword"
+            :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
             label="Senha antiga"
-            type="password"
+            prepend-inner-icon="mdi-lock-outline"
+            :type="visible ? 'text' : 'password'"
             variant="outlined"
+            @click:append-inner="toggleVisibility"
           />
           <v-text-field
             v-model="newPassword"
+            :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
             label="Nova senha"
-            type="password"
+            prepend-inner-icon="mdi-lock-outline"
+            :type="visible ? 'text' : 'password'"
             variant="outlined"
+            @click:append-inner="toggleVisibility"
           />
         </v-card-text>
 
@@ -53,6 +59,7 @@
 <script setup>
   import { onMounted, ref } from 'vue'
   import { useRouter } from 'vue-router'
+  import { updateUser } from '@/api/api_update_user.js'
 
   const router = useRouter()
 
@@ -62,6 +69,12 @@
   const isDialogOpen = ref(false)
   const oldPassword = ref('')
   const newPassword = ref('')
+  const visible = ref(false)
+
+  const toggleVisibility = () => {
+    visible.value = !visible.value
+  }
+
 
   onMounted(() => {
     const userData = localStorage.getItem('user')
@@ -72,8 +85,46 @@
     }
   })
 
+  const changePassword = async () => {
+    if (!oldPassword.value || !newPassword.value) {
+      alert('Por favor, preencha os dois campos de senha.')
+      return
+    }
 
+    try {
+      await updateUser({
+        name: user.value.name,
+        old_password: oldPassword.value,
+        new_password: newPassword.value,
+      })
+
+      alert('Senha alterada com sucesso!')
+      isDialogOpen.value = false
+      oldPassword.value = ''
+      newPassword.value = ''
+    } catch (err) {
+      const status = err?.status || err?.code
+
+      switch (status) {
+        case 401:
+          alert('Senha antiga incorreta.')
+          break
+        case 404:
+          alert('A nova senha não pode ser igual à antiga.')
+          break
+        case 406:
+          alert('A nova senha é muito curta.')
+          break
+        case 422:
+          alert('Erro de validação. Verifique os dados.')
+          break
+        default:
+          alert(err?.message || 'Erro ao alterar a senha.')
+      }
+    }
+  }
 </script>
+
 <style scoped>
 .profile-wrapper {
   display: flex;
