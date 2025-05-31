@@ -12,7 +12,7 @@
 
         <v-icon v-else color="gray" size="150">mdi-account-circle</v-icon>
 
-        <h2>{{ user.name || 'Usuário' }}</h2>
+        <h2 class="name">{{ user.name || 'Usuário' }}</h2>
         <p class="email">{{ user.email }}</p>
 
         <v-btn class="btn bg-deep-purple" @click="isDialogOpen = true">Editar perfil</v-btn>
@@ -150,6 +150,7 @@
 .btn {
   margin-top: 30px;
 }
+
 .image-wrapper {
   width: 120px;
   height: 120px;
@@ -162,6 +163,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.name {
+  color: black;
 }
 
 .email {

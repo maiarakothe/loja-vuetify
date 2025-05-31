@@ -38,8 +38,24 @@
     <v-main style="overflow-y: auto; max-height: 100vh;">
       <v-app-bar app class="bg-deep-purple" flat theme="dark">
         <v-app-bar-nav-icon v-if="!isDesktop" @click="drawer = !drawer" />
-        <v-toolbar-title v-if="route.path === '/profile'" class="text-center font-weight-bold ">Conta</v-toolbar-title>
-        <v-toolbar-title v-if="route.path === '/product'" class="text-center font-weight-bold ">Gerenciamento de Produtos</v-toolbar-title>
+
+        <v-toolbar-title
+          v-if="route.path === '/profile'"
+          class="font-weight-bold"
+        >
+          Conta
+        </v-toolbar-title>
+
+        <v-toolbar-title
+          v-if="route.path === '/product'"
+          class="font-weight-bold"
+        >
+          Gerenciamento de Produtos
+        </v-toolbar-title>
+
+        <v-spacer />
+
+        <ThemeToggle />
       </v-app-bar>
 
       <slot />
