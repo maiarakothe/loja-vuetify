@@ -53,6 +53,13 @@
           Gerenciamento de Produtos
         </v-toolbar-title>
 
+        <v-toolbar-title
+          v-if="route.path === '/homePage'"
+          class="font-weight-bold"
+        >
+          Dashboard
+        </v-toolbar-title>
+
         <v-spacer />
 
         <ThemeToggle />
@@ -98,7 +105,7 @@
   }
 
   const menuItems = [
-    { title: 'Home', icon: 'mdi-home', to: '/HomePage' },
+    { title: 'Home', icon: 'mdi-home', to: '/homePage' },
     { title: 'Produtos', icon: 'mdi-package-variant-closed', to: '/product' },
     { title: 'Conta', icon: 'mdi-account-box', to: '/profile' },
   ]
