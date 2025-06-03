@@ -54,16 +54,18 @@
           </v-card-title>
 
           <v-card-text>
-            <v-form ref="productFormRef" @submit.prevent="saveProduct">
+            <v-form ref="productFormRef" v-model="formIsValid" @submit.prevent="saveProduct">
               <v-text-field
                 v-model="productName"
                 label="Nome"
+                :rules="[requiredRule]"
                 variant="outlined"
               />
               <v-text-field
                 v-model="productPrice"
                 label="Preço"
                 prefix="R$"
+                :rules="[requiredRule]"
                 step="0.01"
                 type="number"
                 variant="outlined"
@@ -73,11 +75,13 @@
                 chips
                 :items="['Vestido', 'Calça', 'Camiseta']"
                 label="Categoria"
+                :rules="[requiredRule]"
                 variant="outlined"
               />
               <v-text-field
                 v-model="productQuantity"
                 label="Quantidade"
+                :rules="[requiredRule]"
                 type="number"
                 variant="outlined"
               />
@@ -118,9 +122,9 @@
   const productQuantity = ref(0)
   const productUrl = ref('')
   const searchQuery = ref('')
-
-
   const productFormRef = ref(null)
+  const requiredRule = v => !!v || 'Campo obrigatório'
+
 
   const tableHeaders = [
     { text: 'Nome', value: 'name' },
@@ -177,7 +181,8 @@
   }
 
   async function saveProduct () {
-    if (!productFormRef.value.validate()) return
+    const { valid } = await productFormRef.value.validate()
+    if (!valid) return
 
     try {
       const accountId = localStorage.getItem('accountId')
@@ -215,6 +220,7 @@
       alert('Erro ao salvar produto: ' + error.message)
     }
   }
+
 
   async function deleteProductById (id) {
     const confirmDelete = window.confirm('Tem certeza que deseja excluir este produto?')
