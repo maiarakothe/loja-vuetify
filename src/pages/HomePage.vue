@@ -26,9 +26,45 @@
             <div class="text-h6 font-weight-bold">{{ uniqueCategories.length }}</div>
           </v-card>
         </v-col>
+
+        <v-col cols="12" md="4" sm="6">
+          <v-card class="pa-4" outlined style="cursor: pointer;" @click="dialog = true">
+            <v-icon color="red" size="36">mdi-alert-circle</v-icon>
+            <div class="mt-2">Itens com quantidade baixa</div>
+            <div class="text-h6 font-weight-bold">{{ lowStockCount }}</div>
+          </v-card>
+        </v-col>
       </v-row>
 
       <v-divider class="my-4" />
+      <v-dialog v-model="dialog" max-width="600">
+        <v-card>
+          <v-card-title class="headline">Produtos com quantidade baixa</v-card-title>
+          <v-card-text>
+            <v-list>
+              <v-list-item
+                v-for="(product, index) in lowStockProducts"
+                :key="index"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ product.name }}</v-list-item-title>
+                  <v-list-item-subtitle>
+                    Quantidade: {{ product.quantity }} | Categoria: {{ product.category_type }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+            <div v-if="lowStockProducts.length === 0" class="text-subtitle-2 mt-2">
+              Nenhum produto com quantidade baixa.
+            </div>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn color="red" text @click="dialog = false">Fechar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
 
     </v-container>
   </SideMenu>
@@ -41,6 +77,16 @@
   const products = ref([])
 
   const totalProducts = computed(() => products.value.length)
+
+  const dialog = ref(false)
+
+  const lowStockProducts = computed(() => {
+    return products.value.filter(product => (product.quantity || 0) < 5)
+  })
+
+  const lowStockCount = computed(() => {
+    return lowStockProducts.value.length
+  })
 
   const totalValue = computed(() => {
     return products.value.reduce((total, product) => {
